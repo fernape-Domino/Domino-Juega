@@ -284,7 +284,10 @@ def create_app():
     return app
 
 
+# Esta línea es CLAVE para Gunicorn (Render)
+app = create_app()
+
+
 if __name__ == "__main__":
-    app = create_app()
-    # host="0.0.0.0" para que el móvil pueda acceder usando la IP de la PC
+    # Para uso local
     app.run(debug=True, port=5005, host="0.0.0.0")
