@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+
+<div class="hero-card card border-0 shadow-lg mb-4">
+  <div class="card-body d-md-flex align-items-center justify-content-between">
+    <div class="mb-3 mb-md-0 text-center text-md-start">
+      <h1 class="hero-title mb-2">Domino Juega</h1>
+      <p class="hero-subtitle mb-3 mx-auto mx-md-0">
+        Anota tus juegos de dominó, crea equipos, guarda historial de ganadas y perdidas,
+        y nunca más discutan quién va ganando 😄.
+      </p>
+      <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
+        <a href="{{ url_for('new_match') }}" class="btn btn-domino-primary btn-lg">
+          🎮 Nueva partida
+        </a>
+      </div>
+    </div>
+    <div class="text-center hero-domino d-none d-md-block">
+      <div class="domino-piece">
+        <div class="domino-half top">
+          <span class="dot dot-1"></span>
+          <span class="dot dot-2"></span>
+          <span class="dot dot-3"></span>
+        </div>
+        <div class="domino-half bottom">
+          <span class="dot dot-4"></span>
+          <span class="dot dot-5"></span>
+          <span class="dot dot-6"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4 g-3">
+
+  <!-- Jugadores -->
+  <div class="col-md-4">
+    <a href="{{ url_for('players') }}" class="card-link-wrapper">
+      <div class="card card-stat shadow-sm hover-lift">
+        <div class="card-body text-center">
+          <p class="stat-label">Jugadores</p>
+          <p class="stat-number">{{ total_players }}</p>
+          <span class="btn btn-sm btn-domino-outline">Ver y gestionar</span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Equipos -->
+  <div class="col-md-4">
+    <a href="{{ url_for('teams') }}" class="card-link-wrapper">
+      <div class="card card-stat shadow-sm hover-lift">
+        <div class="card-body text-center">
+          <p class="stat-label">Equipos</p>
+          <p class="stat-number">{{ total_teams }}</p>
+          <span class="btn btn-sm btn-domino-outline">Ver y gestionar</span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Partidas registradas -->
+  <div class="col-md-4">
+    <a href="{{ url_for('matches_list') }}" class="card-link-wrapper">
+      <div class="card card-stat shadow-sm hover-lift">
+        <div class="card-body text-center">
+          <p class="stat-label">Partidas registradas</p>
+          <p class="stat-number">{{ total_matches }}</p>
+          <span class="btn btn-sm btn-domino-primary">Ver historial</span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+</div>
+
+<h3 class="mb-3">Últimas partidas</h3>
+<div class="card shadow-sm hover-lift">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Equipos</th>
+            <th>Marcador</th>
+            <th>Ganador</th>
+            <th>Fecha</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for m in last_matches %}
+          <tr>
+            <td>#{{ m.id }}</td>
+            <td><strong>{{ m.team_a.name }}</strong> vs <strong>{{ m.team_b.name }}</strong></td>
+            <td><span class="badge bg-domino-pill">{{ m.score_a }} - {{ m.score_b }} / {{ m.target_score }}</span></td>
+            <td>
+              {% if m.winner_team %}
+                <span class="badge bg-success-subtle text-success fw-semibold">{{ m.winner_team.name }}</span>
+              {% else %}
+                <span class="badge bg-secondary-subtle text-secondary">En juego</span>
+              {% endif %}
+            </td>
+            <td>{{ m.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td class="text-end">
+              <a href="{{ url_for('match_detail', match_id=m.id) }}" class="btn btn-sm btn-domino-outline">Ver</a>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="text-center py-3 text-muted">Todavía no hay partidas registradas.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

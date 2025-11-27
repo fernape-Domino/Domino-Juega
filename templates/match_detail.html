@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}Partida {{ match.id }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-0">Partida #{{ match.id }}</h2>
+  <a href="{{ url_for('index') }}" class="btn btn-domino-outline btn-sm">
+    ⬅ Volver al inicio
+  </a>
+</div>
+
+<p class="text-muted mb-2">
+  <strong>{{ match.team_a.name }}</strong>
+  <span class="mx-1">vs</span>
+  <strong>{{ match.team_b.name }}</strong>
+</p>
+
+<div class="row mb-4 g-3">
+  <div class="col-md-4">
+    <div class="card card-stat shadow-sm hover-lift">
+      <div class="card-body text-center">
+        <p class="stat-label">Equipo A</p>
+        <h5 class="mb-2">{{ match.team_a.name }}</h5>
+        <p class="stat-number">{{ match.score_a }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card card-stat shadow-sm hover-lift h-100 d-flex align-items-center justify-content-center text-center">
+      <div>
+        <p class="stat-label">Puntuación objetivo</p>
+        <p class="stat-number mb-0">{{ match.target_score }}</p>
+        {% if match.winner_team %}
+          <span class="badge bg-success-subtle text-success mt-2">
+            Partida finalizada
+          </span>
+        {% else %}
+          <span class="badge bg-secondary-subtle text-secondary mt-2">
+            En juego
+          </span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card card-stat shadow-sm hover-lift">
+      <div class="card-body text-center">
+        <p class="stat-label">Equipo B</p>
+        <h5 class="mb-2">{{ match.team_b.name }}</h5>
+        <p class="stat-number">{{ match.score_b }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if match.winner_team %}
+<div class="alert alert-success shadow-sm">
+  Ganador: <strong>{{ match.winner_team.name }}</strong><br>
+  Finalizada el {{ match.finished_at.strftime('%d/%m/%Y %H:%M') if match.finished_at }}
+</div>
+{% else %}
+<div class="alert alert-info shadow-sm">
+  Partida en curso. Continúa anotando las manos. 🁢
+</div>
+{% endif %}
+
+<div class="row mb-4 g-3">
+  <!-- Anotación manual -->
+  <div class="col-md-6">
+    <div class="card shadow-sm hover-lift h-100">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Anotar mano manual</h5>
+        <form method="post" class="row g-3">
+          <input type="hidden" name="action" value="manual">
+          <div class="col-6">
+            <label class="form-label">{{ match.team_a.name }}</label>
+            <input type="number" name="points_team_a" class="form-control" value="0">
+          </div>
+          <div class="col-6">
+            <label class="form-label">{{ match.team_b.name }}</label>
+            <input type="number" name="points_team_b" class="form-control" value="0">
+          </div>
+          <div class="col-12 d-flex justify-content-end">
+            <button type="submit" class="btn btn-domino-primary">
+              ➕ Agregar mano
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pase corrido -->
+  <div class="col-md-6">
+    <div class="card shadow-sm hover-lift h-100">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Pase corrido (+30)</h5>
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <form method="post">
+              <input type="hidden" name="action" value="plus30_a">
+              <button type="submit" class="btn btn-domino-outline w-100">
+                +30 para {{ match.team_a.name }}
+              </button>
+            </form>
+          </div>
+          <div class="col-12 col-md-6">
+            <form method="post">
+              <input type="hidden" name="action" value="plus30_b">
+              <button type="submit" class="btn btn-domino-outline w-100">
+                +30 para {{ match.team_b.name }}
+              </button>
+            </form>
+          </div>
+        </div>
+        <p class="text-muted small mt-3 mb-0">
+          Usa estos botones cuando se marque pase corrido y quieras sumar 30 puntos de una vez.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h4 class="mb-3">Manos jugadas</h4>
+<div class="card shadow-sm hover-lift">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Mano</th>
+            <th>{{ match.team_a.name }}</th>
+            <th>{{ match.team_b.name }}</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for r in rounds %}
+          <tr>
+            <td>#{{ r.number }}</td>
+            <td>{{ r.points_team_a }}</td>
+            <td>{{ r.points_team_b }}</td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="3" class="text-center py-3 text-muted">
+              Todavía no se ha anotado ninguna mano.
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

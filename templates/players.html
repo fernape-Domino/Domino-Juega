@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Jugadores{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-0">Jugadores</h2>
+  <a href="{{ url_for('index') }}" class="btn btn-domino-outline btn-sm">
+    ⬅ Volver al inicio
+  </a>
+</div>
+
+<div class="card shadow-sm hover-lift mb-4">
+  <div class="card-body">
+    <h5 class="card-title mb-3">Agregar nuevo jugador</h5>
+    <form method="post" class="row g-3">
+      <div class="col-md-8">
+        <input type="text" name="name" class="form-control" placeholder="Nombre del jugador">
+      </div>
+      <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-domino-primary w-100">
+          ➕ Agregar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm hover-lift">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Estado</th>
+            <th class="text-end">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for p in players %}
+          <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.name }}</td>
+            <td>
+              {% if p.active %}
+                <span class="badge bg-success-subtle text-success">Activo</span>
+              {% else %}
+                <span class="badge bg-secondary-subtle text-secondary">Inactivo</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <form method="post" action="{{ url_for('toggle_player_active', player_id=p.id) }}" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-domino-outline">
+                  {% if p.active %}Desactivar{% else %}Activar{% endif %}
+                </button>
+              </form>
+              <form method="post" action="{{ url_for('delete_player', player_id=p.id) }}" class="d-inline" onsubmit="return confirm('¿Seguro que deseas eliminar este jugador?');">
+                <button type="submit" class="btn btn-sm btn-danger">
+                  Eliminar
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="4" class="text-center py-3 text-muted">
+              No hay jugadores registrados todavía. ¡Empieza agregando uno! 🙂
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

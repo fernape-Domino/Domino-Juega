@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Historial {{ team.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-0">Historial del equipo</h2>
+  <a href="{{ url_for('teams') }}" class="btn btn-domino-outline btn-sm">
+    ⬅ Volver a equipos
+  </a>
+</div>
+
+<p class="text-muted mb-3">
+  Equipo: <strong>{{ team.name }}</strong><br>
+  Jugadores: <strong>{{ team.player1.name }}</strong> &amp; <strong>{{ team.player2.name }}</strong>
+</p>
+
+<div class="row mb-4 g-3">
+  <div class="col-md-3">
+    <div class="card card-stat shadow-sm hover-lift">
+      <div class="card-body text-center">
+        <p class="stat-label">Juegos jugados</p>
+        <p class="stat-number">{{ team.games_played }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card card-stat shadow-sm hover-lift">
+      <div class="card-body text-center">
+        <p class="stat-label">Ganados</p>
+        <p class="stat-number text-success">{{ team.games_won }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card card-stat shadow-sm hover-lift">
+      <div class="card-body text-center">
+        <p class="stat-label">Perdidos</p>
+        <p class="stat-number text-danger">{{ team.games_lost }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card card-stat shadow-sm hover-lift">
+      <div class="card-body text-center">
+        <p class="stat-label">Dif. puntos</p>
+        <p class="stat-number">
+          {{ team.points_for - team.points_against }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h4 class="mb-3">Partidas del equipo</h4>
+<div class="card shadow-sm hover-lift">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Rival</th>
+            <th>Marcador</th>
+            <th>Resultado</th>
+            <th>Fecha</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for m in matches %}
+          {% set is_a = (m.team_a.id == team.id) %}
+          {% set my_score = m.score_a if is_a else m.score_b %}
+          {% set rival_score = m.score_b if is_a else m.score_a %}
+          {% set rival = m.team_b if is_a else m.team_a %}
+          <tr>
+            <td>#{{ m.id }}</td>
+            <td>{{ rival.name }}</td>
+            <td>
+              <span class="badge bg-domino-pill">
+                {{ my_score }} - {{ rival_score }}
+              </span>
+            </td>
+            <td>
+              {% if m.winner_team_id == team.id %}
+                <span class="badge bg-success-subtle text-success">Ganado</span>
+              {% elif m.winner_team_id %}
+                <span class="badge bg-danger-subtle text-danger">Perdido</span>
+              {% else %}
+                <span class="badge bg-secondary-subtle text-secondary">En juego</span>
+              {% endif %}
+            </td>
+            <td>{{ m.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td class="text-end">
+              <a href="{{ url_for('match_detail', match_id=m.id) }}" class="btn btn-sm btn-domino-outline">
+                Ver partida
+              </a>
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="6" class="text-center py-3 text-muted">
+              Este equipo aún no tiene partidas registradas.
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

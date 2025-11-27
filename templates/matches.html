@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Partidas registradas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-0">Partidas registradas</h2>
+  <a href="{{ url_for('index') }}" class="btn btn-domino-outline btn-sm">
+    ⬅ Volver al inicio
+  </a>
+</div>
+
+<div class="card shadow-sm hover-lift">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Equipos</th>
+            <th>Marcador</th>
+            <th>Ganador</th>
+            <th>Fecha</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for m in matches %}
+          <tr>
+            <td>#{{ m.id }}</td>
+            <td><strong>{{ m.team_a.name }}</strong> vs <strong>{{ m.team_b.name }}</strong></td>
+            <td><span class="badge bg-domino-pill">{{ m.score_a }} - {{ m.score_b }} / {{ m.target_score }}</span></td>
+            <td>
+              {% if m.winner_team %}
+                <span class="badge bg-success-subtle text-success fw-semibold">{{ m.winner_team.name }}</span>
+              {% else %}
+                <span class="badge bg-secondary-subtle text-secondary">En juego</span>
+              {% endif %}
+            </td>
+            <td>{{ m.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td class="text-end">
+              <a href="{{ url_for('match_detail', match_id=m.id) }}" class="btn btn-sm btn-domino-outline">Ver</a>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="text-center py-3 text-muted">No hay partidas registradas todavía.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

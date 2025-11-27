@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Nueva partida{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-0">Nueva partida</h2>
+  <a href="{{ url_for('index') }}" class="btn btn-domino-outline btn-sm">
+    ⬅ Volver al inicio
+  </a>
+</div>
+
+<div class="card shadow-sm hover-lift">
+  <div class="card-body">
+    <h5 class="card-title mb-3">Configura tu juego de dominó</h5>
+
+    <form method="post" class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">Equipo A</label>
+        <select name="team_a_id" class="form-select">
+          <option value="">Seleccione...</option>
+          {% for t in teams %}
+            <option value="{{ t.id }}">{{ t.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Equipo B</label>
+        <select name="team_b_id" class="form-select">
+          <option value="">Seleccione...</option>
+          {% for t in teams %}
+            <option value="{{ t.id }}">{{ t.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label">Puntuación objetivo</label>
+        <input type="number" name="target_score" class="form-control" value="100">
+      </div>
+
+      <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-domino-primary w-100">
+          🎮 Crear partida
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
