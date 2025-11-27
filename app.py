@@ -144,9 +144,25 @@ def create_app():
         flash("Equipo eliminado correctamente.", "success")
         return redirect(url_for("teams"))
 
-    # --------- NUEVA PARTIDA ---------
+    # --------- NUEVA PARTIDA (BLOQUEA SI YA HAY UNA EN CURSO) ---------
     @app.route("/matches/new", methods=["GET", "POST"])
     def new_match():
+        # Ver si ya hay una partida en curso (sin ganador todavía)
+        ongoing_match = (
+            Match.query
+            .filter_by(winner_team_id=None)
+            .order_by(Match.created_at.desc())
+            .first()
+        )
+
+        if ongoing_match:
+            flash(
+                f"Ya tienes una partida en curso (# {ongoing_match.id}). "
+                "Debes terminarla o eliminarla antes de crear una nueva.",
+                "warning"
+            )
+            return redirect(url_for("match_detail", match_id=ongoing_match.id))
+
         teams = Team.query.order_by(Team.name).all()
 
         if request.method == "POST":
@@ -179,7 +195,7 @@ def create_app():
 
         return render_template("new_match.html", teams=teams)
 
-    # --------- DETALLE DE PARTIDA + ANOTACIÓN ---------
+    # --------- DETALLE DE PARTIDA + ANOTACIÓN / REINICIAR / ELIMINAR ---------
     @app.route("/matches/<int:match_id>", methods=["GET", "POST"])
     def match_detail(match_id):
         match = Match.query.get_or_404(match_id)
@@ -187,7 +203,42 @@ def create_app():
         if request.method == "POST":
             action = request.form.get("action")
 
-            # Lógica para determinar puntos de la mano
+            # --- ELIMINAR PARTIDA (solo si está en curso) ---
+            if action == "delete":
+                if match.winner_team_id is not None:
+                    flash("No puedes eliminar una partida que ya fue finalizada.", "danger")
+                    return redirect(url_for("match_detail", match_id=match.id))
+
+                # Borrar manos primero
+                for r in list(match.rounds):
+                    db.session.delete(r)
+
+                db.session.delete(match)
+                db.session.commit()
+                flash("Partida eliminada correctamente.", "success")
+                return redirect(url_for("matches_list"))
+
+            # --- REINICIAR PARTIDA (solo si está en curso) ---
+            if action == "restart":
+                if match.winner_team_id is not None:
+                    flash("No puedes reiniciar una partida que ya fue finalizada.", "danger")
+                    return redirect(url_for("match_detail", match_id=match.id))
+
+                # Eliminar todas las manos
+                for r in list(match.rounds):
+                    db.session.delete(r)
+
+                # Resetear marcador
+                match.score_a = 0
+                match.score_b = 0
+                match.finished_at = None
+                match.winner_team_id = None
+
+                db.session.commit()
+                flash("Partida reiniciada correctamente.", "info")
+                return redirect(url_for("match_detail", match_id=match.id))
+
+            # --- ANOTAR PUNTOS (manual o +30) ---
             if action == "manual":
                 puntos_a = request.form.get("points_team_a", "0") or "0"
                 puntos_b = request.form.get("points_team_b", "0") or "0"
