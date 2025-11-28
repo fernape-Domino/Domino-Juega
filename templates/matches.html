@@ -4,45 +4,86 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h2 class="mb-0">Partidas registradas</h2>
-  <a href="{{ url_for('index') }}" class="btn btn-domino-outline btn-sm">
-    ⬅ Volver al inicio
-  </a>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="{{ url_for('new_match') }}" class="btn btn-domino-primary btn-sm">
+      🎮 Nueva partida
+    </a>
+    <a href="{{ url_for('index') }}" class="btn btn-domino-outline btn-sm">
+      ⬅ Volver al inicio
+    </a>
+  </div>
+</div>
+
+<!-- Bloque para reiniciar TODO el juego -->
+<div class="alert alert-warning d-flex justify-content-between align-items-center shadow-sm mb-4">
+  <div>
+    <strong>Cuidado:</strong> este botón borrará <u>todas</u> las partidas, manos y estadísticas
+    de los equipos. No se puede deshacer.
+  </div>
+  <form method="post" action="{{ url_for('reset_all') }}">
+    <button type="submit"
+            class="btn btn-danger btn-sm"
+            onclick="return confirm('¿Seguro que deseas reiniciar el juego completo? Se borrarán TODAS las partidas, manos y estadísticas de equipos. Esta acción no se puede deshacer.');">
+      🗑 Reiniciar juego completo
+    </button>
+  </form>
 </div>
 
 <div class="card shadow-sm hover-lift">
   <div class="card-body p-0">
     <div class="table-responsive">
       <table class="table table-hover mb-0 align-middle">
-        <thead class="table-light">
+        <thead class="table-dark">
           <tr>
             <th>ID</th>
             <th>Equipos</th>
             <th>Marcador</th>
             <th>Ganador</th>
             <th>Fecha</th>
-            <th></th>
+            <th class="text-end">Acciones</th>
           </tr>
         </thead>
         <tbody>
         {% for m in matches %}
           <tr>
             <td>#{{ m.id }}</td>
-            <td><strong>{{ m.team_a.name }}</strong> vs <strong>{{ m.team_b.name }}</strong></td>
-            <td><span class="badge bg-domino-pill">{{ m.score_a }} - {{ m.score_b }} / {{ m.target_score }}</span></td>
+            <td>
+              <strong>{{ m.team_a.name }}</strong>
+              <span class="text-muted">vs</span>
+              <strong>{{ m.team_b.name }}</strong>
+            </td>
+            <td>
+              <span class="badge bg-secondary">
+                {{ m.score_a }} - {{ m.score_b }} / {{ m.target_score }}
+              </span>
+            </td>
             <td>
               {% if m.winner_team %}
-                <span class="badge bg-success-subtle text-success fw-semibold">{{ m.winner_team.name }}</span>
+                <span class="badge bg-success-subtle text-success">
+                  {{ m.winner_team.name }}
+                </span>
               {% else %}
-                <span class="badge bg-secondary-subtle text-secondary">En juego</span>
+                <span class="badge bg-warning-subtle text-warning">
+                  En curso
+                </span>
               {% endif %}
             </td>
-            <td>{{ m.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>
+              {{ m.created_at.strftime("%d/%m/%Y %H:%M") if m.created_at else "-" }}
+            </td>
             <td class="text-end">
-              <a href="{{ url_for('match_detail', match_id=m.id) }}" class="btn btn-sm btn-domino-outline">Ver</a>
+              <a href="{{ url_for('match_detail', match_id=m.id) }}"
+                 class="btn btn-sm btn-domino-outline">
+                Ver / Anotar
+              </a>
             </td>
           </tr>
         {% else %}
-          <tr><td colspan="6" class="text-center py-3 text-muted">No hay partidas registradas todavía.</td></tr>
+          <tr>
+            <td colspan="6" class="text-center py-3 text-muted">
+              No hay partidas registradas todavía.
+            </td>
+          </tr>
         {% endfor %}
         </tbody>
       </table>
