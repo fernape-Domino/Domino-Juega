@@ -16,6 +16,7 @@
       Objetivo: {{ match.target_score }} puntos
     </small>
   </div>
+
   <div class="text-end">
     <a href="{{ url_for('matches_list') }}" class="btn btn-domino-outline btn-sm mb-1">
       📜 Ver todas las partidas
@@ -26,6 +27,7 @@
   </div>
 </div>
 
+<!-- Marcadores -->
 <div class="row g-3 mb-4">
   <div class="col-md-6">
     <div class="card shadow-sm hover-lift h-100">
@@ -47,15 +49,21 @@
   </div>
 </div>
 
+<!-- Si ya hay ganador -->
 {% if match.winner_team %}
 <div class="alert alert-success shadow-sm mb-4">
   🏆 <strong>{{ match.winner_team.name }}</strong> ganó esta partida.
 </div>
+
 {% else %}
+
+<!-- Botones superiores: Reiniciar / Eliminar -->
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
   <h5 class="mb-2 mb-md-0">Anotar nueva mano</h5>
+
   <div class="d-flex flex-wrap gap-2">
-    <!-- Botón Reiniciar -->
+
+    <!-- Reiniciar partida -->
     <form method="post" class="d-inline">
       <input type="hidden" name="action" value="restart">
       <button type="submit" class="btn btn-warning btn-sm"
@@ -63,7 +71,8 @@
         🔄 Reiniciar partida
       </button>
     </form>
-    <!-- Botón Eliminar -->
+
+    <!-- Eliminar partida -->
     <form method="post" class="d-inline">
       <input type="hidden" name="action" value="delete">
       <button type="submit" class="btn btn-danger btn-sm"
@@ -71,78 +80,90 @@
         🗑 Eliminar partida
       </button>
     </form>
+
   </div>
 </div>
 
+<!-- Registrar nueva mano -->
 <div class="card shadow-sm hover-lift mb-4">
   <div class="card-body">
+
+    <!-- MANUAL -->
     <form method="post" class="row g-3 align-items-end">
       <input type="hidden" name="action" value="manual">
+
       <div class="col-md-4">
         <label class="form-label">Puntos equipo A ({{ match.team_a.name }})</label>
-        <input type="number" name="points_team_a" class="form-control" min="0" value="0">
+        <input type="number" min="0" class="form-control" name="points_team_a" value="0">
       </div>
+
       <div class="col-md-4">
         <label class="form-label">Puntos equipo B ({{ match.team_b.name }})</label>
-        <input type="number" name="points_team_b" class="form-control" min="0" value="0">
+        <input type="number" min="0" class="form-control" name="points_team_b" value="0">
       </div>
+
       <div class="col-md-4">
         <button type="submit" class="btn btn-domino-primary w-100">
-          ➕ Agregar mano (manual)
+          ➕ Agregar mano manual
         </button>
       </div>
     </form>
 
     <hr>
 
+    <!-- +30 -->
     <div class="d-flex flex-wrap gap-2">
       <form method="post" class="d-inline">
         <input type="hidden" name="action" value="plus30_a">
-        <button type="submit" class="btn btn-domino-outline">
-          +30 puntos para {{ match.team_a.name }}
-        </button>
+        <button class="btn btn-domino-outline">+30 para {{ match.team_a.name }}</button>
       </form>
 
       <form method="post" class="d-inline">
         <input type="hidden" name="action" value="plus30_b">
-        <button type="submit" class="btn btn-domino-outline">
-          +30 puntos para {{ match.team_b.name }}
-        </button>
+        <button class="btn btn-domino-outline">+30 para {{ match.team_b.name }}</button>
       </form>
     </div>
+
   </div>
 </div>
+
 {% endif %}
 
+<!-- HISTORIAL DE MANOS -->
 <h5 class="mb-3">Manos jugadas</h5>
+
 <div class="card shadow-sm hover-lift">
   <div class="card-body p-0">
+
     <div class="table-responsive">
       <table class="table table-hover mb-0 align-middle">
         <thead class="table-light">
           <tr>
             <th>#</th>
-            <th>Puntos {{ match.team_a.name }}</th>
-            <th>Puntos {{ match.team_b.name }}</th>
+            <th>{{ match.team_a.name }}</th>
+            <th>{{ match.team_b.name }}</th>
           </tr>
         </thead>
+
         <tbody>
         {% for r in rounds %}
-          <tr>
-            <td>{{ r.number }}</td>
-            <td>{{ r.points_team_a }}</td>
-            <td>{{ r.points_team_b }}</td>
-          </tr>
+        <tr>
+          <td>{{ r.number }}</td>
+          <td>{{ r.points_team_a }}</td>
+          <td>{{ r.points_team_b }}</td>
+        </tr>
         {% else %}
-          <tr>
-            <td colspan="3" class="text-center py-3 text-muted">
-              Aún no se han registrado manos en esta partida.
-            </td>
-          </tr>
+        <tr>
+          <td colspan="3" class="text-center py-3 text-muted">
+            No se han registrado manos todavía.
+          </td>
+        </tr>
         {% endfor %}
         </tbody>
       </table>
     </div>
+
   </div>
 </div>
+
 {% endblock %}
